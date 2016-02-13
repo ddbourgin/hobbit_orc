@@ -12,22 +12,16 @@ if (DEBUG) {
 
 imObH = new Image();
 imObH.src = 'images/hobbit.jpeg';
-imObH.onload = function () {
-    // ctx.drawImage(imObH, boat.picXLocs_L[i],
-    //     boat.picYLoc, boat.picHeight, boat.picWidth);
-};
+imObH.onload = function () {};
 
 imObO = new Image();
 imObO.src = 'images/orc.png';
-imObO.onload = function () {
-    // ctx.drawImage(imObO, boat.picXLocs_L[i],
-    //     boat.picYLoc, boat.picHeight, boat.picWidth);
-};
+imObO.onload = function () {};
 
 
 
 var success = 0; // if subject solved the problem
-var maxSteps = 100;
+var maxSteps = 100; // should really get this from db
 var experimentCompleted = 0; // if subject reached the end (regardless of whether they solved the problem)
 var stepsRemaining = maxSteps;
 
@@ -129,7 +123,7 @@ function initProblem() {
         nOrcsL_prop: cond[1],
         nHobbitsR_prop: 0,
         nHobbitsL_prop: cond[0],
-        stepNum: 0,
+        stepsRemaining: stepsRemaining,
         picHeight: imgHeight,
         picWidth: imgHeight
     };
@@ -137,6 +131,8 @@ function initProblem() {
 }
 
 function startProb() {
+    $('#counter-placeholder').empty();
+    $('#counter-placeholder').append('<p style="font-size:20px" align="center">'+ prob.stepsRemaining.toString() +' Moves Remaining</p>');
     drawState();
     specifyActions();
 }
@@ -235,6 +231,13 @@ function drawState() {
         }
     }
 
+    // left bank label
+    ctx.font = "15px sans-serif";
+    ctx.fillStyle = "black";
+    ctx.fillText("Hobbits: " + prob.nHobbitsL_prop.toString() + "\nOrcs: " + prob.nOrcsL_prop.toString(),
+        leftBank.xloc - parseInt(lineWidth) / 2, canvasHeight - parseInt(lineWidth));
+
+
     // hobbits and orcs on right bank
     nRight = prob.nOrcsR_prop + prob.nHobbitsR_prop;
     if ((prob.total - nRight) % 2  === 0) {
@@ -249,7 +252,7 @@ function drawState() {
     for (i=0; i<prob.nHobbitsR_prop; i++){
         imgArray.push('H');
     }
-    for (i=0; i<prob.nHobbitsR_prop; i++){
+    for (i=0; i<prob.nOrcsR_prop; i++){
         imgArray.push('O');
     }
 
@@ -262,6 +265,13 @@ function drawState() {
                       rightBank.picYLocs[i], prob.picHeight, prob.picWidth);
         }
     }
+
+    // right bank label
+    ctx.font = "15px sans-serif";
+    ctx.fillStyle = "black";
+    ctx.fillText("Hobbits: " + prob.nHobbitsR_prop.toString() + "\nOrcs: " + prob.nOrcsR_prop.toString(),
+        rightBank.xloc - parseInt(lineWidth) / 2, canvasHeight - parseInt(lineWidth));
+
 }
 
 
@@ -358,15 +368,15 @@ function onSubmit() {
         prob.nHobbitsL += prob.nHobbitsBoat;
     }
 
+    console.log((prob.nOrcsL > prob.nHobbitsL && prob.nHobbitsL > 0) || (prob.nOrcsR > prob.nHobbitsR && prob.nHobbitsR > 0) || (prob.nHobbitsBoat + prob.nOrcsBoat > 0));
+
     // check for solution
     if (prob.nHobbitsR === prob.nHobbits && prob.nOrcsR === prob.nOrcs) {
         success = 1;
         demographicsPage();
 
     // invalid move, un-update state
-    } else if ((prob.nOrcsL > prob.nHobbitsL && prob.nHobbitsL > 0)|| (prob.nOrcsR > prob.nHobbitsR && prob.nHobbitsR > 0) ) {
-        console.log(prob.nOrcsL, prob.nHobbitsL);
-        console.log(prob.nOrcsR, prob.nHobbitsR);
+    } else if ((prob.nOrcsL > prob.nHobbitsL && prob.nHobbitsL > 0) || (prob.nOrcsR > prob.nHobbitsR && prob.nHobbitsR > 0) || (prob.nHobbitsBoat + prob.nOrcsBoat === 0)) {
 
         if (prob.boatPos === 'L') {
             prob.nOrcsR -= prob.nOrcsBoat;
@@ -381,7 +391,8 @@ function onSubmit() {
         }
 
         // place error message specifying the move is invalid
-        $('#demo-placeholder').append('<p style="color:red;font-size:20px" align="left"><strong>Invalid Move</strong></p>');
+        $('#demo-placeholder').empty();
+        $('#demo-placeholder').append('<p style="color:red;font-size:20px" align="center"><strong>Invalid Move</strong></p>');
 
         prob.nOrcsL_prop = prob.nOrcsL;
         prob.nOrcsR_prop = prob.nOrcsR;
@@ -404,13 +415,16 @@ function onSubmit() {
             prob.boatPos = 'L';
         }
 
-        prob.stepNum += 1;
+        prob.stepsRemaining -= 1;
         prob.nOrcsL_prop = prob.nOrcsL;
         prob.nOrcsR_prop = prob.nOrcsR;
         prob.nHobbitsL_prop = prob.nHobbitsL;
         prob.nHobbitsR_prop = prob.nHobbitsR;
         prob.nHobbitsBoat = 0;
         prob.nOrcsBoat = 0;
+
+        $('#counter-placeholder').empty();
+        $('#counter-placeholder').append('<p style="font-size:20px" align="center">'+ prob.stepsRemaining.toString() +' Moves Remaining</p>');
 
         drawState();
         specifyActions();
@@ -421,7 +435,7 @@ function showInstructions() {
     // getSubjectInfo();
     initProblem();
     $("#instructions").empty();
-    $('#instructions').append('<div style="width:600px" align="left"><h3>Background</h3>Once upon a time, in the last days of Middle Earth,' + prob.nHobbits.toString() + ' Hobbits and ' + prob.nOrcs.toString() + ' Orcs set out on a journey together. They were sent by the great wizard Gandalf to find one of the lost palantiri, or oracle stone. In the course of their journey they come to a river. On the bank is a small rowboat. All '+ prob.total.toString() +' travelers need to cross the river but <strong>the boat will hold only ' + prob.boatCapacity.toString() + ' of them at a time</strong>.<br><br>The Orcs are fierce and wicked creatures, who will try to kill the Hobbits if they get the opportunity. The Hobbits are normally gentle creatures, but are very good fighters if provoked. The Orcs know this, and will not try to attack the Hobbits unless the Orcs outnumber the Hobbits. That is, <strong>the Hobbits will be safe as long as there are at least as many Hobbits as Orcs on either side of the river</strong>.<br><br>Your goal is to move all of the Hobbits and Orcs across the river without killing them.</div><br><br>');
+    $('#instructions').append('<div style="width:600px" align="left"><h3>Background</h3>Once upon a time, in the last days of Middle Earth, ' + prob.nHobbits.toString() + ' Hobbits and ' + prob.nOrcs.toString() + ' Orcs set out on a journey together. They were sent by the great wizard Gandalf to find one of the lost palantiri, or oracle stone. In the course of their journey they come to a river. On the bank is a small rowboat. All '+ prob.total.toString() +' travelers need to cross the river but <strong>the boat will hold only ' + prob.boatCapacity.toString() + ' of them at a time</strong>.<br><br>The Orcs are fierce and wicked creatures, who will try to kill the Hobbits if they get the opportunity. The Hobbits are normally gentle creatures, but are very good fighters if provoked. The Orcs know this, and will not try to attack the Hobbits unless the Orcs outnumber the Hobbits. That is, <strong>the Hobbits will be safe as long as there are at least as many Hobbits as Orcs on either side of the river</strong>.<br><br>Your goal is to move all of the Hobbits and Orcs across the river without killing them.</div><br><br>');
     $("#instructions").append('<div align="center"><input type="button" value="Continue" class="btn" onclick="startProb()"></div>');
 }
 
