@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+   <script type="text/javascript" src="js/jquery-2.1.4.min.js"></script>
+</head>
+
+
+<body>
+  <div class="container">
+  <span id="expt">
+      <div align="center">
+      <span id="instructions">
+        <div class='text-left' style="width:600px">
+          <h4>1. Consent to Participate</h4>
+          <p>This research is being conducted by Professor Thomas Griffiths, a faculty member at the University of California at Berkeley. Professor Griffiths' lab develops and evaluates computational models of human cognition. The current study typically takes up to 20 minutes to complete.
+          <br />
+          <br />
+          If you agree to take part in the research you will be asked to engage in a problem solving task. You will receive $0.75 for your participation upon completion of the session. All of the information that we obtain during the research will be kept confidential, and will not associated with your name in any way.
+          <br />
+          <br />
+          Your participation in this research is voluntary. You are free to refuse to take part, and you may stop taking part at any time. You are free to discontinue participation in this study at any time with no penalty. If you have any questions about the research, do not hesitate to contact David Bourgin at <a href="mailto:ddbourgin@berkeley.edu">ddbourgin@berkeley.edu</a>. You may also contact us through Amazon Mechanical Turk. If you have any questions about your rights or treatment as a participant in this research project, please contact UC Berkeley's Committee for Protection of Human Subjects at (510) 642-7461 or <a href="mailto:subjects@berkeley.edu">subjects@berkeley.edu</a>.
+          <br />
+          <br />
+          By selecting the 'Agree to Participate' button below, I acknowledge that I am 18 or older, have read this consent form, and I agree to take part in the research.</p>
+
+          <br />
+
+          <h4>2. System Requirements</h4>
+          <p>Please note that this HIT requires Javascript, and that your computer must be connected to the internet throughout the HIT.</p>
+        </div>
+        <br />
+        <br />
+
+        <div id="acceptHit" align="center">
+          <input type="button" value="Agree to Participate" class="btn" onclick="showInstructions()">
+          <input type="button" class="btn" value="Choose not to participate" onclick="showDismissal()">
+        </div>
+        </div>
+      </span><!-- /#instructions -->
+
+      <div class="row">
+        <div class="col-md-9">
+          <div id="hobbit-placeholder" align="left"></div>
+        </div>
+        <div class="col-md-3" id="actions-placeholder" align="left"></div>
+      </div>
+
+    <div id="demo-placeholder" align="center"></div>
+
+    </span> <!-- /#expt -->
+    <script type="text/javascript" src="js/expt.js"></script>
+  </div> <!-- /.container -->
+</body>
