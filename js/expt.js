@@ -23,12 +23,11 @@ var imObO = new Image();
 imObO.src = 'images/orc.png';
 imObO.onload = function() {};
 
-var cond = [3, 3, 2];
-var prob,
+// var cond = [3, 3, 2];
+var prob, maxSteps,
+    blockID = 0,
     success = 0, // if subject solved the problem
-    maxSteps = 100, // should really get this from db
     experimentCompleted = 0, // if subject reached the end (regardless of whether they solved the problem)
-    stepsRemaining = maxSteps,
     lineWidth = "4", // pixels
     canvasWidth = 800,
     canvasHeight = 400,
@@ -72,6 +71,19 @@ $(window).bind('beforeunload', function() {
 });
 
 function initProblem() {
+    blockID += 1;
+
+    if (cond2[0] === "0"){
+        cond2 = cond1;
+        blockID = 2;
+    }
+
+    if (blockID === 1) {
+        cond = cond1;
+    } else if (blockID === 2) {
+        cond = cond2;
+    }
+
     // cond is a tuple of (totalHobbits, totalOrcs, boatCapacity)
     var total = cond[1] + cond[0],
         buffer = (total - 1) * imgImgBuffer,
@@ -120,7 +132,7 @@ function initProblem() {
         nOrcsL_prop: cond[1],
         nHobbitsR_prop: 0,
         nHobbitsL_prop: cond[0],
-        stepsRemaining: stepsRemaining,
+        stepsRemaining: maxSteps,
         picHeight: imgHeight,
         picWidth: imgHeight
     };
@@ -482,8 +494,8 @@ function getSubjectInfo() {
 
                 cond1 = data.cond1;
                 cond2 = data.cond2;
-
                 condID = data.condID;
+                maxSteps = data.maxSteps;
 
                 subjectID = data.subjectID;
                 approvalCode = data.approvalCode;
