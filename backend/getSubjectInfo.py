@@ -60,16 +60,16 @@ def get_subject_info(query):
 
     # if not, enter worker into database and return approval code
     else:
-        sql = "SELECT id, cond1, cond2 FROM cond WHERE status = 'Accepting' LIMIT 1"
+        sql = "SELECT id, cond1, cond2, maxSteps FROM cond WHERE status = 'Accepting' LIMIT 1"
         con.cursor.execute(sql)
         result = fetch_dict(con.cursor)
         returnValue['condID'] = result['id']
         returnValue['cond1'] = result['cond1'].split(',')
         returnValue['cond2'] = result['cond2'].split(',')
+	returnValue['maxSteps'] = result['maxSteps']
 
         sql = """INSERT INTO subjects (
-                cond1,
-                cond2,
+		condID,
                 startTime,
                 lastTime,
                 completed,
@@ -85,8 +85,7 @@ def get_subject_info(query):
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
 
-        args = (result['cond1'],
-                result['cond2'],
+        args = (result['id'],
                 time.strftime('%Y-%m-%d %H:%M:%S'),
                 time.strftime('%Y-%m-%d %H:%M:%S'),
                 'False',

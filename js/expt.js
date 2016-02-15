@@ -465,7 +465,7 @@ function getSubjectInfo() {
         };
 
         $.ajax({
-            url: "./cgi-bin/getSubjectInfo_jugs.py",
+            url: "./backend/getSubjectInfo.py",
             type: "POST",
             async: true,
             data: {
@@ -526,7 +526,7 @@ function postDemographics() {
     };
 
     $.ajax({
-        url: "./cgi-bin/postDemographics_jugs.py",
+        url: "./backend/postDemographics.py",
         type: "POST",
         async: true,
         data: {
@@ -564,7 +564,7 @@ function endExperiment() {
     };
 
     $.ajax({
-        url: "./cgi-bin/endExperiment_jugs.py",
+        url: "./backend/endExperiment.py",
         type: "POST",
         async: false,
         data: {query: JSON.stringify(data)},
