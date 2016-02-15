@@ -7,7 +7,7 @@ import time
 import random
 
 class DB_Connection(object):
-    def __init__(self, database="jugs", host="localhost"):
+    def __init__(self, database="hobbit_orcs", host="localhost"):
         self.dbname = database
         self.db = MySQLdb.connect(host=host, db=database,
                                   read_default_file = '/etc/mysql/my.cnf')

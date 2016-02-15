@@ -182,6 +182,7 @@ function drawState() {
 
     for (i = 0; i < prob.nHobbitsBoat + prob.nOrcsBoat; i++) {
         ctx.beginPath();
+
         if (imgArray.pop() === 'H') {
             if (prob.boatPos === 'L') {
                 ctx.drawImage(imObH, boat.picXLocs_L[i],

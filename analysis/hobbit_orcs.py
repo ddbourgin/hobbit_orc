@@ -66,7 +66,7 @@ class Hobbits_Orcs(object):
         end.attr['shape'] = 'box'
 
         fileid = '-'.join([str(i) for i in self.totals]) + '.png'
-        G1.draw('./state_spaces/hobbit_orc/' + fileid, prog='circo')
+        G1.draw('./plots/state_spaces/' + fileid, prog='circo')
 
 
     def graph(self, end_links=False):
@@ -263,4 +263,3 @@ class Hobbits_Orcs(object):
     # look at fits for avg states visited per quartile
     # look at MTurk
     # look at time to take a move for individual participants
-    # amanda shu ->
