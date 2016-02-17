@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-
+#!/usr/bin/python
 import json
 import MySQLdb
 import cgi
@@ -82,7 +81,7 @@ def get_subject_info(query):
                 region,
                 workerId,
                 status
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
 
         args = (result['id'],
