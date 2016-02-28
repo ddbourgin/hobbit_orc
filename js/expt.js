@@ -447,8 +447,57 @@ function showInstructions() {
     $("#instructions").empty();
     $('#instructions').append('<div style="width:600px" align="left"><h3>Background</h3>Once upon a time, in the last days of Middle Earth, ' + prob.nHobbits.toString() + ' Hobbits and ' + prob.nOrcs.toString() + ' Orcs set out on a journey together. They were sent by the great wizard Gandalf to find one of the lost palantiri, or oracle stone. In the course of their journey they come to a river. On the bank is a small rowboat. All ' + prob.total.toString() + ' travelers need to cross the river but <strong>the boat will hold only ' + prob.boatCapacity.toString() + ' of them at a time</strong>.<br><br>The Orcs are fierce and wicked creatures, who will try to kill the Hobbits if they get the opportunity. The Hobbits are normally gentle creatures, but are very good fighters if provoked. The Orcs know this, and will not try to attack the Hobbits unless the Orcs outnumber the Hobbits. That is, <strong>the Hobbits will be safe as long as there are at least as many Hobbits as Orcs on either side of the river</strong>.<br><br>Your goal is to move all of the Hobbits and Orcs across the river without killing them.</div><br><br>');
     $("#instructions").append('<div align="center"><input type="button" value="Continue" class="btn" onclick="startProb()"></div>');
-}; 
+};
 
+function getSubjectInfo_debug() {
+    var info, subInfo = {};
+
+    info = {
+        userDisplayLanguage: 'DEBUG',
+        userAgent: 'DEBUG',
+        ipAddress: ipAddress,
+        country: 'DEBUG',
+        city: 'DEBUG',
+        region: 'DEBUG',
+        workerId: Math.random() * 257
+    };
+
+    $.ajax({
+        url: "./backend/getSubjectInfo.py",
+        type: "POST",
+        async: true,
+        data: {query: JSON.stringify(info) },
+        success: function(data) {
+            data = JSON.parse(data);
+            console.log(data);
+
+            if (data.subjectID === 0) {
+                $("#expt").empty();
+                $("#expt").append('<div class="text-center"><p>This experiment is currently at capacity. Please try again later.</p></div>');
+            }
+
+            cond1 = data.cond1;
+            cond2 = data.cond2;
+            condID = data.condID;
+            maxSteps = data.maxSteps;
+
+            subjectID = data.subjectID;
+            approvalCode = data.approvalCode;
+
+            if (!DEBUG && data.approvalCode == 'denied') {
+                $("#expt").empty();
+                $("#expt").append('<div class="text-center"><p>This Worker ID or IP address has already participated in this task. Please return the HIT. Thanks!</p></div>');
+            } else {
+                initProblem();
+                showInstructions();
+            }
+        },
+        error: function(string) {
+            $("#expt").empty();
+            $("#expt").append('<div class="text-center"><p>The database is having some trouble. Please contact the experimenter.</p></div>');
+        }
+    });
+};
 
 function getSubjectInfo() {
     $.getJSON("http://ip-api.com/json/?callback=?", function(data) {
@@ -476,9 +525,7 @@ function getSubjectInfo() {
             url: "./backend/getSubjectInfo.py",
             type: "POST",
             async: true,
-            data: {
-                query: JSON.stringify(info)
-            },
+            data: {query: JSON.stringify(info) },
             success: function(data) {
                 data = JSON.parse(data);
                 console.log(data);
@@ -496,12 +543,12 @@ function getSubjectInfo() {
                 subjectID = data.subjectID;
                 approvalCode = data.approvalCode;
 
-                if (data.approvalCode == 'denied') {
+                if (!DEBUG && data.approvalCode == 'denied') {
                     $("#expt").empty();
                     $("#expt").append('<div class="text-center"><p>This Worker ID or IP address has already participated in this task. Please return the HIT. Thanks!</p></div>');
                 } else {
-		    initProblem();
-		    showInstructions();
+        		    initProblem();
+        		    showInstructions();
                 }
             },
             error: function(string) {
@@ -561,8 +608,10 @@ function demographicsPage() {
     $("#actions-placeholder").empty();
     $("#hobbit-placeholder").empty();
 
-    $('#instructions').append('<div align="center"><h2>You Have Reached the End of the Experiment</h2></div><div style="width:600px: class="text-left">To get credit for the HIT, please complete the demographics form below. When you are finished, click Submit.<br><br><br></div>');
-    $("#demo-placeholder").append('<div align="left"><form method="POST" action="javascript:postDemographics();">1. Age (in years):<br> <input type="text" name="age" id="age" required> <br><br><br> 2. Gender:<br>&nbsp&nbsp&nbsp&nbsp&nbsp <label><input type="radio" name="gender" id="gender" value="male" required>&nbspMale&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="gender" id="gender" value="female">&nbspFemale&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="gender" id="gender" value="other">&nbspOther:&nbsp</label><input type="text" id="gender_other" name="gender_other" /><br><br><br> 3. How motivated were you to complete the task before you began? <br>&nbsp&nbsp&nbsp&nbsp&nbsp <label><input type="radio" name="motivation" value="veryMotivated" required>&nbspVery motivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="motivation" value="somewhatMotivated">&nbspSomewhat motivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="motivation" value="neutral">&nbspNeither motivated nor unmotivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="motivation" value="somewhatUnmotivated">&nbspSomewhat unmotivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="motivation" value="veryUnmotivated">&nbspVery unmotivated</label> <br><br><br> 4. How enjoyable did you find the task? <br>&nbsp&nbsp&nbsp&nbsp&nbsp <label><input type="radio" name="enjoyable" value="veryEnjoyable" required>&nbspVery enjoyable&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="enjoyable" value="somewhatEnjoyable">&nbspSomewhat enjoyable&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="enjoyable" value="neutral">&nbspNeither enjoyable nor unpleasant&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="enjoyable" value="somewhatUnpleasant">&nbspSomewhat unpleasant&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="enjoyable" value="veryUnpleasant">&nbspVery unpleasant&nbsp&nbsp&nbsp&nbsp&nbsp</label> <br><br> <input type="submit" class="btn" value="Submit"></form></div>');
+    $('#instructions').append('<div align="center" style="width:600px"><h2>You Have Reached the End of the Experiment</h2></div><div align="left" style="width:600px">To get credit for the HIT, please complete the demographics form below. When you are finished, click Submit.<br><br><br></div>');
+    $("#instructions").append('<div align="left" style="width:600px"><form method="POST" action="javascript:postDemographics();">1. Age (in years):<br> <input type="text" name="age" id="age" required> <br><br><br> 2. Gender:<br>&nbsp&nbsp&nbsp&nbsp&nbsp <label><input type="radio" name="gender" id="gender" value="male" required>&nbspMale&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="gender" id="gender" value="female">&nbspFemale&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="gender" id="gender" value="other">&nbspOther:&nbsp</label><input type="text" id="gender_other" name="gender_other" /><br><br><br> 3. How motivated were you to complete the task before you began? <br>&nbsp&nbsp&nbsp&nbsp&nbsp <label><input type="radio" name="motivation" value="veryMotivated" required>&nbspVery motivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<label><input type="radio" name="motivation" value="somewhatmotivated">&nbspSomewhat motivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<label><input type="radio" name="motivation" value="neutral">&nbspNeither motivated nor unmotivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<label><input type="radio" name="motivation" value="somewhatunmotivated">&nbspSomewhat unmotivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<label><input type="radio" name="motivation" value="veryunmotivated">&nbspVery unmotivated</label> <br><br><br> 4. How enjoyable did you find the task? <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <label><input type="radio" name="enjoyable" value="veryenjoyable" required>&nbspVery enjoyable&nbsp&nbsp&nbsp&nbsp&nbsp</label> <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp <label><input type="radio" name="enjoyable" value="somewhatenjoyable">&nbspSomewhat enjoyable&nbsp&nbsp&nbsp&nbsp&nbsp</label> <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<label><input type="radio" name="enjoyable" value="neutral">&nbspNeither enjoyable nor unpleasant&nbsp&nbsp&nbsp&nbsp&nbsp</label> <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<label><input type="radio" name="enjoyable" value="somewhatunpleasant">&nbspSomewhat unpleasant&nbsp&nbsp&nbsp&nbsp&nbsp</label> <br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp<label><input type="radio" name="enjoyable" value="veryunpleasant">&nbspVery unpleasant&nbsp&nbsp&nbsp&nbsp&nbsp</label> <br><br> <input type="submit" class="btn" value="Submit"></form></div>');
+    // $('#instructions').append('<div align="center"><h2>You Have Reached the End of the Experiment</h2></div><div style="width:600px: class="text-left">To get credit for the HIT, please complete the demographics form below. When you are finished, click Submit.<br><br><br></div>');
+    // $("#demo-placeholder").append('<div align="left" style="width:600px"><form method="POST" action="javascript:postDemographics();">1. Age (in years):<br> <input type="text" name="age" id="age" required> <br><br><br> 2. Gender:<br>&nbsp&nbsp&nbsp&nbsp&nbsp <label><input type="radio" name="gender" id="gender" value="male" required>&nbspMale&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="gender" id="gender" value="female">&nbspFemale&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="gender" id="gender" value="other">&nbspOther:&nbsp</label><input type="text" id="gender_other" name="gender_other" /><br><br><br> 3. How motivated were you to complete the task before you began? <br>&nbsp&nbsp&nbsp&nbsp&nbsp <label><input type="radio" name="motivation" value="veryMotivated" required>&nbspVery motivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="motivation" value="somewhatMotivated">&nbspSomewhat motivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="motivation" value="neutral">&nbspNeither motivated nor unmotivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="motivation" value="somewhatUnmotivated">&nbspSomewhat unmotivated&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="motivation" value="veryUnmotivated">&nbspVery unmotivated</label> <br><br><br> 4. How enjoyable did you find the task? <br>&nbsp&nbsp&nbsp&nbsp&nbsp <label><input type="radio" name="enjoyable" value="veryEnjoyable" required>&nbspVery enjoyable&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="enjoyable" value="somewhatEnjoyable">&nbspSomewhat enjoyable&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="enjoyable" value="neutral">&nbspNeither enjoyable nor unpleasant&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="enjoyable" value="somewhatUnpleasant">&nbspSomewhat unpleasant&nbsp&nbsp&nbsp&nbsp&nbsp</label> <label><input type="radio" name="enjoyable" value="veryUnpleasant">&nbspVery unpleasant&nbsp&nbsp&nbsp&nbsp&nbsp</label> <br><br> <input type="submit" class="btn" value="Submit"></form></div>');
 }
 
 function endExperiment() {
